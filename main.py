@@ -41,28 +41,20 @@ def post_teepublic(request: Annotated[str, Body()]):
         result.extend(crawl_teepublic(url))
     return result
 
-
 def find_data_redbubble(script):
     if 'window.__APOLLO_STATE__' in str(script):
         return True
     return False
 
-
 def crawl_data_red_bubble(url):
     result = []
     html = BeautifulSoup(requests.get(url=url, headers=headers).content, features="lxml")
-
-
     resultGrid = html.find("div", {"id": "SearchResultsGrid"})
     url_to_name = {}
     for product in resultGrid.find_all("a", {"element": "a"}):
         url = product.attrs['href']
         name = product.find("span", {"class": "styles__box--2Ufmy styles__text--23E5U styles__display6--3wsBG styles__nowrap--33UtL styles__display-block--3kWC4"}).get_text()
         url_to_name[url] = name
-
-
-
-
     script = list(filter(find_data_redbubble, html.find("body").find_all("script")))[0]
     dom = BeautifulSoup(str(script).replace("{{%2F}}", "/"), features="lxml")
     # print(dom.find("script").get_text().split("window.__APOLLO_STATE__=")[1][:-1])
@@ -85,9 +77,6 @@ def crawl_data_red_bubble(url):
     return result
             # print(data[f"{value['previewSet']['id']}.previews.0"]['url'])
     # print(script)
-
-    
-
 headers = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
     # 'Accept-Encoding': 'gzip, deflate, br',
@@ -163,8 +152,6 @@ def get_api_image_url_teepublic(html: BeautifulSoup) -> str:
     script = json.loads(script.split("dataLayer.push(")[1].split(")")[0])
     url = f"{script['request__base_url']}/designs/{script['design__design_id']}/canvas/{script['design__canvas_id']}/product_images"
     return url
-
-
 
 @app.post("/crawl/product/teepublic")
 def post_product_teepublic(request: Annotated[str, Body()]):
